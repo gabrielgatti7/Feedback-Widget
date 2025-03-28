@@ -3,3 +3,7 @@
 @theme {
 	--color-brand-500: #8257e5;
 }
+
+body{
+	@apply bg-[#09090A]
+}
