@@ -1,12 +1,14 @@
 import { useState } from "react";
 
-import { CloseButton } from "./CloseButton";
+import { FeedbackTypeStep } from "./Steps/FeedbackTypeStep";
 
-import bugImageURL from "../assets/bug.svg";
-import ideaImageURL from "../assets/idea.svg";
-import thoughtImageURL from "../assets/thought.svg";
+import bugImageURL from "../../assets/bug.svg";
+import ideaImageURL from "../../assets/idea.svg";
+import thoughtImageURL from "../../assets/thought.svg";
+import { FeedbackContentStep } from "./Steps/FeedbackContentStep";
 
-const feedbackTypes = {
+// eslint-disable-next-line react-refresh/only-export-components
+export const feedbackTypes = {
 	BUG: {
 		title: "Problem",
 		image: {
@@ -42,35 +44,27 @@ const feedbackTypes = {
  */ 
 
 // keyof typeof feedbackTypes => "BUG" | "IDEA" | "OTHER"
-type feedbackType = keyof typeof feedbackTypes;
+export type feedbackType = keyof typeof feedbackTypes;
 
 export function WidgetForm(){
 	//useState<feedbackType | null>(null) => feedbackType or null is the type of the state, null is the initial value
 	const [feedbackType, setFeedbackType] = useState<feedbackType | null>(null);
 
+	function handleRestartFeedback(){
+		setFeedbackType(null);
+	}
+
 	return (
 		<div className="bg-zinc-900 p-4 relative rounded-2xl mb-4 flex flex-col items-center shadow-lg w-[calc(100vw-2rem)] md:w-auto">
-			<header>
-				<span className="text-xl leading-6">Deixe seu feedback</span>
-				<CloseButton />
-			</header>
 
 			{/* If feedbackType is null, show feedback options */}
 			{!feedbackType ? (
-				<div className="flex py-8 gap-2 w-full">
-					{Object.entries(feedbackTypes).map(([type, { title, image }]) => (
-						<button
-							key={type}
-							className="bg-zinc-800 rounded-lg py-5 w-24 flex-1 flex flex-col items-center gap-2 border-2 border-transparent hover:border-brand-500 focus:border-brand-500 focus:outline-none"
-							onClick={() => setFeedbackType(type as feedbackType)}
-						>
-							<img src={image.source} alt={image.alt} className="w-12 h-12"/>
-							<span>{title}</span>
-						</button>
-					))}
-				</div>
+				<FeedbackTypeStep onFeedbackTypeChanged={setFeedbackType} />
 			) : (
-				<h1>Feedback Form</h1>
+				<FeedbackContentStep 
+					feedbackType={feedbackType}
+					onFeedbackRestartRequested={handleRestartFeedback}
+				/>
 			)}
 			
 		</div>
