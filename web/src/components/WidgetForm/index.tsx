@@ -6,6 +6,7 @@ import bugImageURL from "../../assets/bug.svg";
 import ideaImageURL from "../../assets/idea.svg";
 import thoughtImageURL from "../../assets/thought.svg";
 import { FeedbackContentStep } from "./Steps/FeedbackContentStep";
+import { FeedbackSuccessStep } from "./Steps/FeedbackSuccessStep";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const feedbackTypes = {
@@ -49,23 +50,30 @@ export type feedbackType = keyof typeof feedbackTypes;
 export function WidgetForm(){
 	//useState<feedbackType | null>(null) => feedbackType or null is the type of the state, null is the initial value
 	const [feedbackType, setFeedbackType] = useState<feedbackType | null>(null);
+	const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
 
 	function handleRestartFeedback(){
+		setFeedbackSubmitted(false);
 		setFeedbackType(null);
 	}
 
 	return (
 		<div className="bg-zinc-900 p-4 relative rounded-2xl mb-4 flex flex-col items-center shadow-lg w-[calc(100vw-2rem)] md:w-auto">
 
-			{/* If feedbackType is null, show feedback options */}
-			{!feedbackType ? (
-				<FeedbackTypeStep onFeedbackTypeChanged={setFeedbackType} />
+			{ feedbackSubmitted ? (
+				<FeedbackSuccessStep onAnotherFeedbackRequested={handleRestartFeedback}/>
 			) : (
-				<FeedbackContentStep 
-					feedbackType={feedbackType}
-					onFeedbackRestartRequested={handleRestartFeedback}
-				/>
+				!feedbackType ? (
+					<FeedbackTypeStep onFeedbackTypeChanged={setFeedbackType} />
+				) : (
+					<FeedbackContentStep 
+						feedbackType={feedbackType}
+						onFeedbackRestartRequested={handleRestartFeedback}
+						onFeedbackSubmitted={() => setFeedbackSubmitted(true)}
+					/>
+				)
 			)}
+			
 			
 		</div>
 	)
