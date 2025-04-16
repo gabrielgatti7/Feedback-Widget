@@ -3,6 +3,8 @@ import { feedbackType, feedbackTypes } from "..";
 import { CloseButton } from "../../CloseButton";
 import { ScreenshotButton } from "../ScreenshotButton";
 import { FormEvent, useState } from "react";
+import { api } from "../../../lib/api";
+import { Loading } from "../Loading";
 
 interface FeedbackContentStepProps {
 	feedbackType: feedbackType;
@@ -13,16 +15,28 @@ interface FeedbackContentStepProps {
 export function FeedbackContentStep({ feedbackType, onFeedbackRestartRequested, onFeedbackSubmitted }: FeedbackContentStepProps){
 	const [screenshotTaken, setScreenshotTaken] = useState<string | null>(null);
 	const [feedbackComment, setFeedbackComment] = useState('');
+	const [isSendingFeedback, setIsSendingFeedback] = useState(false);
 
 	function handleScreenshotTaken(screenshot: string | null){
 		setScreenshotTaken(screenshot);
 	}
 
-	function handleFeedbackSubmit(event: FormEvent){
+	async function handleFeedbackSubmit(event: FormEvent){
 		event.preventDefault();
-		console.log({screenshotTaken, feedbackComment});
-		onFeedbackSubmitted();
+
+		setIsSendingFeedback(true);
+
 		// Send feedback to the server
+		await api.post('/feedbacks', {
+			type: feedbackType,
+			comment: feedbackComment,
+			screenshot: screenshotTaken,
+		});
+		
+
+		setIsSendingFeedback(false);
+
+		onFeedbackSubmitted();
 	}
 
 	const feedbackTypeInfo = feedbackTypes[feedbackType];
@@ -59,11 +73,11 @@ export function FeedbackContentStep({ feedbackType, onFeedbackRestartRequested, 
 
 					<button 
 						type="submit"
-						disabled={!feedbackComment}
+						disabled={!feedbackComment || isSendingFeedback}
 						onClick={handleFeedbackSubmit}
 						className="p-2 bg-brand-500 rounded-md border-transparent flex-1 justify-center items-center text-sm hover:bg-brand-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-brand-500 transition-colors disabled:opacity-50 disabled:hover:bg-brand-500"
 					>
-						Send feedback
+						{isSendingFeedback ? <Loading/> : 'Send feedback'}
 					</button>
 				</footer>
 			</form>
